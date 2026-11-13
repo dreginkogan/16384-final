@@ -14,18 +14,13 @@ from math import cos as c
 #     # robot.register_visualizer(detector)
 #     print("meow meow meow")
 
-robot = Robot(visualize=True, open_browser=False)
+robot = Robot(visualize=True, open_browser=True)
 
 joints = robot.joint_values
 vels = robot.joint_velocities
 print(joints)
 print()
 
-initial_pos = np.zeros(7)
-
-# robot.show()
-robot.set_joint_targets(initial_pos, speed=None, wait=True)
-robot.stop(wait=True)
 
 
 
@@ -92,7 +87,58 @@ def test_forward_kinematics(kin_params):
 
     print()
 
+def return_jacobian(kin_params, q):
+    '''returns the xyz jacobian at a position 1'''
+    # need to do this for pseudoinverse also
+    T = transform(kin_params(q)) #7, 4, 4 -- transform for each of the 7 joints
+    endeff_pos = T[-1, :3, 3] # the displacement column of the end effector
+
+    J = np.zeros((3, 7))
+    for i in range(7): # for each joint
+        approach_i = T[i, :3, 2] # direction of motion, approach column of the transform
+        origin_i = T[i, :3, 3] # transformation for the origin frame
+        J[:, i] = np.cross(approach_i, endeff_pos - origin_i)
+    return J
+
+def pseudo_inverse(jacobian):
+    """return left pseudoinverse"""
+    return jacobian.T @ np.linalg.inv(jacobian @ jacobian.T)
+
+def move_between_points(start_pos, end_pos, kinematic_parameters, steps=10, speed=0.2):
+    pointDiff = end_pos - start_pos
+    stepStartPos = start_pos
+
+    for i in range(1, steps):
+        stepStartPos = (pointDiff/steps)*i
+        stepEndPos = (pointDiff/steps)*(i+1)
+        diff = stepEndPos - stepStartPos
+
+        jacobian = return_jacobian(kinematic_parameters, robot.joint_values)
+        pseudo = pseudo_inverse(jacobian)
+        joint_vels = pseudo@diff
+
+        robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=True)
 
 
-# all works, my fk implementation is good
-test_forward_kinematics(kinematic_parameters)
+        
+robot.show
+
+# moves in straight lines in all 3 axes, as required
+# move_between_points(np.array([0, 0, 0]), np.array([200, 0, 0]).T, kinematic_parameters, speed=0.15)
+# move_between_points(np.array([200, 0, 0]), np.array([200, 200, 0]).T, kinematic_parameters, speed=0.15)
+# move_between_points(np.array([200, 200, 0]), np.array([200, 200, 200]).T, kinematic_parameters, speed=0.15)
+# move_between_points(np.array([200, 200, 0]), np.array([200, 200, 150]).T, kinematic_parameters, speed=0.15)
+
+
+move_between_points(np.array([0, 0, 0]), np.array([100, 0, 100]).T, kinematic_parameters, speed=0.15)
+robot.grip(1)
+move_between_points(np.array([100, 0, 100]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
+robot.grip(0)
+move_between_points(np.array([100, 0, 0]), np.array([150, 0, 150]).T, kinematic_parameters, speed=0.15)
+
+# move_between_points(np.array([200, 200, 150]), np.array([200, 200, 50]).T, kinematic_parameters, speed=0.15)
+# robot.grip(0)
+# move_between_points(np.array([200, 200, 0]), np.array([200, 200, 200]).T, kinematic_parameters, speed=0.15)
+
+
+robot.stop(wait=True)
