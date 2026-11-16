@@ -120,11 +120,11 @@ def move_between_points(start_pos, end_pos, kinematic_parameters, steps=5, speed
         robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=False)
 
 
-# robot.show()
+robot.show()
 
-# robot.free_drive()
-# input("hi")
-# robot.end_free_drive()
+robot.free_drive()
+input("press enter to exit free drive")
+robot.end_free_drive()
 
 # print(robot.joint_values)
 
