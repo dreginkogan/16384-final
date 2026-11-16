@@ -132,7 +132,7 @@ robot.end_free_drive()
 
 print("before any moving")
 
-# robot.set_joint_targets([-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473], wait=True) # measured these irl
+robot.set_joint_targets([-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473], wait=True) # measured these irl
 
 print("after initial homing")
 move_between_points(np.array([0, 0, 0]), np.array([200, 0, 0]).T, kinematic_parameters, speed=0.15)
@@ -154,4 +154,4 @@ print("after all the moving")
 # move_between_points(np.array([200, 200, 0]), np.array([200, 200, 200]).T, kinematic_parameters, speed=0.15)
 
 
-robot.stop(wait=True)
+# robot.stop(wait=True)
