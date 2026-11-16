@@ -104,7 +104,7 @@ def pseudo_inverse(jacobian):
     """return left pseudoinverse"""
     return jacobian.T @ np.linalg.inv(jacobian @ jacobian.T)
 
-def move_between_points(start_pos, end_pos, kinematic_parameters, steps=10, speed=0.2):
+def move_between_points(start_pos, end_pos, kinematic_parameters, steps=60, speed=0.2):
     pointDiff = end_pos - start_pos
     stepStartPos = start_pos
 
@@ -124,17 +124,17 @@ def move_between_points(start_pos, end_pos, kinematic_parameters, steps=10, spee
 robot.show
 
 # moves in straight lines in all 3 axes, as required
-# move_between_points(np.array([0, 0, 0]), np.array([200, 0, 0]).T, kinematic_parameters, speed=0.15)
-# move_between_points(np.array([200, 0, 0]), np.array([200, 200, 0]).T, kinematic_parameters, speed=0.15)
-# move_between_points(np.array([200, 200, 0]), np.array([200, 200, 200]).T, kinematic_parameters, speed=0.15)
-# move_between_points(np.array([200, 200, 0]), np.array([200, 200, 150]).T, kinematic_parameters, speed=0.15)
+move_between_points(np.array([0, 0, 0]), np.array([200, 0, 0]).T, kinematic_parameters, speed=0.15)
+move_between_points(np.array([200, 0, 0]), np.array([200, 200, 0]).T, kinematic_parameters, speed=0.15)
+move_between_points(np.array([200, 200, 0]), np.array([200, 200, 200]).T, kinematic_parameters, speed=0.15)
+move_between_points(np.array([200, 200, 0]), np.array([200, 200, 150]).T, kinematic_parameters, speed=0.15)
 
 
-move_between_points(np.array([0, 0, 0]), np.array([100, 0, 100]).T, kinematic_parameters, speed=0.15)
-robot.grip(1)
-move_between_points(np.array([100, 0, 100]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
-robot.grip(0)
-move_between_points(np.array([100, 0, 0]), np.array([150, 0, 150]).T, kinematic_parameters, speed=0.15)
+# move_between_points(np.array([0, 0, 0]), np.array([100, 0, 100]).T, kinematic_parameters, speed=0.15)
+# robot.grip(1)
+# move_between_points(np.array([100, 0, 100]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
+# robot.grip(0)
+# move_between_points(np.array([100, 0, 0]), np.array([150, 0, 150]).T, kinematic_parameters, speed=0.15)
 
 # move_between_points(np.array([200, 200, 150]), np.array([200, 200, 50]).T, kinematic_parameters, speed=0.15)
 # robot.grip(0)
