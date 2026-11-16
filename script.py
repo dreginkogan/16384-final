@@ -117,7 +117,7 @@ def move_between_points(start_pos, end_pos, kinematic_parameters, steps=50, spee
         pseudo = pseudo_inverse(jacobian)
         joint_vels = pseudo@diff
 
-        robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=False)
+        robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=True)
 
 
 robot.show()
