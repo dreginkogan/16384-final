@@ -100,6 +100,11 @@ def return_jacobian(kin_params, q):
         J[:, i] = np.cross(approach_i, endeff_pos - origin_i)
     return J
 
+def get_position(joint_vals, kin_params):
+    J = return_jacobian(kin_params, joint_vals)
+    loc = J[:3, 3]
+    return loc
+
 def pseudo_inverse(jacobian):
     """return left pseudoinverse"""
     return jacobian.T @ np.linalg.inv(jacobian @ jacobian.T)
@@ -122,22 +127,26 @@ def move_between_points(start_pos, end_pos, kinematic_parameters, steps=5, speed
 
 robot.show()
 
-robot.free_drive()
-input("press enter to exit free drive")
-robot.end_free_drive()
+input("press enter to run")
 
-# print(robot.joint_values)
+measured_zero = [-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473]
 
-# moves in straight lines in all 3 axes, as required
+robot.set_joint_targets(measured_zero, wait=True) # measured these irl
 
-print("before any moving")
+init_pos = get_position(robot.joint_values, kinematic_parameters)
+print(get_position(robot.joint_values, kinematic_parameters)-init_pos)
 
-robot.set_joint_targets([-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473], wait=True) # measured these irl
 
-print("moving in each direction")
+
 move_between_points(np.array([0, 0, 0]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
-move_between_points(np.array([100, 0, 0]), np.array([100, 100, 0]).T, kinematic_parameters, speed=0.15)
+print(get_position(robot.joint_values, kinematic_parameters)-init_pos)
+
+move_between_points(np.array([0, 0, 0]), np.array([0, 100, 0]).T, kinematic_parameters, speed=0.15)
+print(get_position(robot.joint_values, kinematic_parameters)-init_pos)
+
 move_between_points(np.array([100, 100, 0]), np.array([100, 100, 100]).T, kinematic_parameters, speed=0.15)
+print(get_position(robot.joint_values, kinematic_parameters)-init_pos)
+
 print("after all the moving")
 move_between_points(np.array([100, 100, 100]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
 
