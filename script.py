@@ -117,17 +117,17 @@ def move_between_points(start_pos, end_pos, kinematic_parameters, steps=60, spee
         pseudo = pseudo_inverse(jacobian)
         joint_vels = pseudo@diff
 
-        robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=True)
+        robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=False)
 
 
-        
+robot.set_joint_targets([-0.136915, 0.123349, 0.139834, 0.231641, -0.074532, -0.163037, 0.012485], wait=True) # measured these irl
 robot.show
 
-robot.free_drive()
-input("hi")
-robot.end_free_drive()
+# robot.free_drive()
+# input("hi")
+# robot.end_free_drive()
 
-print(robot.joint_values)
+# print(robot.joint_values)
 
 # moves in straight lines in all 3 axes, as required
 move_between_points(np.array([0, 0, 0]), np.array([200, 0, 0]).T, kinematic_parameters, speed=0.15)
