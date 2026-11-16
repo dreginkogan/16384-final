@@ -104,7 +104,7 @@ def pseudo_inverse(jacobian):
     """return left pseudoinverse"""
     return jacobian.T @ np.linalg.inv(jacobian @ jacobian.T)
 
-def move_between_points(start_pos, end_pos, kinematic_parameters, steps=50, speed=0.2):
+def move_between_points(start_pos, end_pos, kinematic_parameters, steps=10, speed=0.2):
     pointDiff = end_pos - start_pos
     stepStartPos = start_pos
 
