@@ -134,24 +134,23 @@ print("before any moving")
 
 robot.set_joint_targets([-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473], wait=True) # measured these irl
 
-print("after initial homing")
-move_between_points(np.array([0, 0, 0]), np.array([200, 0, 0]).T, kinematic_parameters, speed=0.15)
-move_between_points(np.array([200, 0, 0]), np.array([200, 200, 0]).T, kinematic_parameters, speed=0.15)
-move_between_points(np.array([200, 200, 0]), np.array([200, 200, 200]).T, kinematic_parameters, speed=0.15)
-move_between_points(np.array([200, 200, 0]), np.array([200, 200, 150]).T, kinematic_parameters, speed=0.15)
+print("moving in each direction")
+move_between_points(np.array([0, 0, 0]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
+move_between_points(np.array([100, 0, 0]), np.array([100, 100, 0]).T, kinematic_parameters, speed=0.15)
+move_between_points(np.array([100, 100, 0]), np.array([100, 100, 100]).T, kinematic_parameters, speed=0.15)
 print("after all the moving")
 
-# print(robot.joint_values)
+robot.free_drive()
+input("press enter after the gripper is 10cm above the lightsaber")
+robot.end_free_drive()
 
-# move_between_points(np.array([0, 0, 0]), np.array([100, 0, 100]).T, kinematic_parameters, speed=0.15)
-# robot.grip(1)
-# move_between_points(np.array([100, 0, 100]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
-# robot.grip(0)
-# move_between_points(np.array([100, 0, 0]), np.array([150, 0, 150]).T, kinematic_parameters, speed=0.15)
+robot.grip(1)
 
-# move_between_points(np.array([200, 200, 150]), np.array([200, 200, 50]).T, kinematic_parameters, speed=0.15)
-# robot.grip(0)
-# move_between_points(np.array([200, 200, 0]), np.array([200, 200, 200]).T, kinematic_parameters, speed=0.15)
+move_between_points(np.array([0, 0, 0]), np.array([0, 0, -100]).T, kinematic_parameters, speed=0.15)
+robot.grip(0)
+move_between_points(np.array([0, 0, 0]), np.array([0, 0, 200]).T, kinematic_parameters, speed=0.15)
+
+
 
 
 # robot.stop(wait=True)
