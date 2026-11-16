@@ -151,7 +151,8 @@ move_between_points(np.array([0, 0, 0]), np.array([0, 0, -100]).T, kinematic_par
 robot.grip(0)
 move_between_points(np.array([0, 0, 0]), np.array([0, 0, 200]).T, kinematic_parameters, speed=0.15)
 
-
-
+input("press enter to release lightsaber")
+robot.grip(1)
+robot.grip(0)
 
 # robot.stop(wait=True)
