@@ -104,7 +104,7 @@ def pseudo_inverse(jacobian):
     """return left pseudoinverse"""
     return jacobian.T @ np.linalg.inv(jacobian @ jacobian.T)
 
-def move_between_points(start_pos, end_pos, kinematic_parameters, steps=60, speed=0.2):
+def move_between_points(start_pos, end_pos, kinematic_parameters, steps=5, speed=0.2):
     pointDiff = end_pos - start_pos
     stepStartPos = start_pos
 
@@ -120,7 +120,7 @@ def move_between_points(start_pos, end_pos, kinematic_parameters, steps=60, spee
         robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=False)
 
 
-robot.show()
+# robot.show()
 
 # robot.free_drive()
 # input("hi")
@@ -129,8 +129,8 @@ robot.show()
 # print(robot.joint_values)
 
 # moves in straight lines in all 3 axes, as required
-robot.set_joint_targets([-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473], wait=False) # measured these irl
 
+robot.set_joint_targets([-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473], wait=True) # measured these irl
 move_between_points(np.array([0, 0, 0]), np.array([200, 0, 0]).T, kinematic_parameters, speed=0.15)
 move_between_points(np.array([200, 0, 0]), np.array([200, 200, 0]).T, kinematic_parameters, speed=0.15)
 move_between_points(np.array([200, 200, 0]), np.array([200, 200, 200]).T, kinematic_parameters, speed=0.15)
