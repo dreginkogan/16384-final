@@ -123,12 +123,19 @@ def move_between_points(start_pos, end_pos, kinematic_parameters, steps=60, spee
         
 robot.show
 
+robot.free_drive()
+input("hi")
+robot.end_free_drive()
+
+print(robot.joint_values)
+
 # moves in straight lines in all 3 axes, as required
 move_between_points(np.array([0, 0, 0]), np.array([200, 0, 0]).T, kinematic_parameters, speed=0.15)
 move_between_points(np.array([200, 0, 0]), np.array([200, 200, 0]).T, kinematic_parameters, speed=0.15)
 move_between_points(np.array([200, 200, 0]), np.array([200, 200, 200]).T, kinematic_parameters, speed=0.15)
 move_between_points(np.array([200, 200, 0]), np.array([200, 200, 150]).T, kinematic_parameters, speed=0.15)
 
+print(robot.joint_values)
 
 # move_between_points(np.array([0, 0, 0]), np.array([100, 0, 100]).T, kinematic_parameters, speed=0.15)
 # robot.grip(1)
