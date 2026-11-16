@@ -104,7 +104,7 @@ def pseudo_inverse(jacobian):
     """return left pseudoinverse"""
     return jacobian.T @ np.linalg.inv(jacobian @ jacobian.T)
 
-def move_between_points(start_pos, end_pos, kinematic_parameters, steps=10, speed=0.2):
+def move_between_points(start_pos, end_pos, kinematic_parameters, steps=5, speed=0.2):
     pointDiff = end_pos - start_pos
     stepStartPos = start_pos
 
@@ -139,6 +139,7 @@ move_between_points(np.array([0, 0, 0]), np.array([100, 0, 0]).T, kinematic_para
 move_between_points(np.array([100, 0, 0]), np.array([100, 100, 0]).T, kinematic_parameters, speed=0.15)
 move_between_points(np.array([100, 100, 0]), np.array([100, 100, 100]).T, kinematic_parameters, speed=0.15)
 print("after all the moving")
+move_between_points(np.array([100, 100, 100]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
 
 robot.free_drive()
 input("press enter after the gripper is 10cm above the lightsaber")
