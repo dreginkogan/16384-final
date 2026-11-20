@@ -271,9 +271,19 @@ elif argument=="m2plane":
     # how to find direction of least variance for the normal???
     plt.figure()
     ax = plt.subplot(111, projection='3d')
-    ax.scatter(points[:,0,0], points[:,0,1], points[:,0,2], color='b')
-    ax.scatter(points[:,1,0], points[:,1,1], points[:1,2], color='r')
+
+    base_x = points[:, 0, 0][~np.isnan(points[:, 0, 0])]
+    base_y = points[:, 0, 1][~np.isnan(points[:, 0, 1])]
+    base_z = points[:, 0, 2][~np.isnan(points[:, 0, 2])]
+
+    tip_x = points[:, 1, 0][~np.isnan(points[:, 1, 0])]
+    tip_y = points[:, 1, 1][~np.isnan(points[:, 1, 1])]
+    tip_z = points[:, 1, 2][~np.isnan(points[:, 1, 2])]
+
+    ax.scatter(base_x, base_y, base_z, color='b')
+    ax.scatter(tip_x, tip_y, tip_z, color='r')
     plt.show()
+    print("yay")
 
 print("complete")
 
