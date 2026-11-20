@@ -218,7 +218,7 @@ elif argument=="m2":
     print(ends2)
 
     R3 = np.array([[0, 0, 1], [0, -1, 0], [1, 0, 0]])
-    move_between_points(np.array([0, 0, 0]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.3, absRot=True)
+    move_between_points(np.array([0, 0, -150]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.3, absRot=True)
 
     ends3 = detector.query("red")
     print(ends3)
