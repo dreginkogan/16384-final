@@ -210,7 +210,10 @@ elif argument=="m2grasp":
     move_between_points(np.array([300, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.5, absRot=True)
     robot.grip(1)
     input("put lightsaber block thing under")
-    move_between_points(np.array([0, 0, -80]), Rotation.identity(), kinematic_parameters, speed=0.2,)
+    print()
+    move_between_points(np.array([0, 0, -80]), Rotation.identity(), kinematic_parameters, speed=0.3,)
+    robot.grip(0)
+    move_between_points(np.array([0, 0, 80]), Rotation.identity(), kinematic_parameters, speed=0.3,)
 
 print("complete")
 
