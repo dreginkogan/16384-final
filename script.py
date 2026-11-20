@@ -6,6 +6,7 @@ from math import sin as s
 from math import cos as c
 from scipy.spatial.transform import Rotation, Slerp # so i can get angles, i am not doing all that math
 import sys
+from libcapstone import LightsaberDetector
 
 # set vis to True when testing on computer, otherwise set IP for real arm
 # with Robot(visualize=True, open_browser=True) as robot:
@@ -201,16 +202,21 @@ elif argument == "m2invkintest":
     move_between_points(np.array([-200, 200, -50]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.5, absRot=True)
     print(np.round(get_position(robot.joint_values, kinematic_parameters)))
 elif argument=="m2":
-    from libcapstone import LightsaberDetector
     detector = LightsaberDetector()
     robot.register_visualizer(detector)
-    
+
+    R1 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
     move_between_points(np.array([300, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.5, absRot=True)
+
     R2 = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
     move_between_points(np.array([100, 0, 200]), Rotation.from_matrix(R2), kinematic_parameters, speed=0.3)
 
     R3 = np.array([[0, 0, 1], [0, -1, 0], [1, 0, 0]])
     move_between_points(np.array([250, 0, 0]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.3, absRot=True)
+
+    ends = detector.query("red")
+
+    print(ends)
 elif argument=="m2grasp":
     R1 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
     move_between_points(np.array([300, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.5, absRot=True)
