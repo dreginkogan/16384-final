@@ -1,0 +1,18 @@
+{
+  "red": {
+    "signal": "r",
+    "against": "gb",
+    "clip_channel": "r",
+    "threshold": 20,
+    "draw_color": "#FF2020",
+    "overlay_color": "#50FF50"
+  },
+  "green": {
+    "signal": "gb",
+    "against": "r",
+    "clip_channel": "g",
+    "threshold": 20,
+    "draw_color": "#20E0B0",
+    "overlay_color": "#FFA050"
+  }
+}
