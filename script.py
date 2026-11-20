@@ -153,10 +153,10 @@ def inv_kin(p_target, r_target, kin_params, q0, iters = 10000, p_tolerance=0.04,
 
 
 
-# measured_zero = [-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473] #arbitrary joints values for an xyz origin
-# robot.set_joint_targets(measured_zero, wait=True) # measured these irl
+measured_zero = [-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473] #arbitrary joints values for an xyz origin
+robot.set_joint_targets(measured_zero, wait=True) # measured these irl
 
-move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
+# move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
 
 robot.show()
 input("press enter to run")
