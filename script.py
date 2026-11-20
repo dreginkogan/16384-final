@@ -256,6 +256,9 @@ elif argument=="m2plane":
     detector = LightsaberDetector()
     robot.register_visualizer(detector)
 
+    R1 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
+    move_between_points(np.array([300, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.5, absRot=True)
+
     points = np.zeros((100, 2, 3))
     # print(points[1])
     for i in range(1, 101):
@@ -270,6 +273,7 @@ elif argument=="m2plane":
     ax = plt.subplot(111, projection='3d')
     ax.scatter(points[:,0,0], points[:,0,1], points[:,0,2], color='b')
     ax.scatter(points[:,1,0], points[:,1,1], points[:1,2], color='r')
+    plt.show()
 
 print("complete")
 
