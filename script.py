@@ -7,6 +7,8 @@ from math import cos as c
 from scipy.spatial.transform import Rotation, Slerp # so i can get angles, i am not doing all that math
 import sys
 from libcapstone import LightsaberDetector
+from time import sleep
+import matplotlib.pyplot as plt
 
 # set vis to True when testing on computer, otherwise set IP for real arm
 # with Robot(visualize=True, open_browser=True) as robot:
@@ -250,7 +252,24 @@ elif argument=="m2grasp":
 
     ends3 = detector.query("red")
     print(ends3)
+elif argument=="m2plane":
+    detector = LightsaberDetector()
+    robot.register_visualizer(detector)
 
+    points = np.zeros((100, 2, 3))
+    # print(points[1])
+    for i in range(1, 101):
+        reading = detector.query("red")
+        points[i-1] = reading
+        sleep(2/100)
+
+    # find centroid of all the points
+
+    # how to find direction of least variance for the normal???
+    plt.figure()
+    ax = plt.subplot(111, projection='3d')
+    ax.scatter(points[:,0,0], points[:,0,1], points[:,0,2], color='b')
+    ax.scatter(points[:,1,0], points[:,1,1], points[:1,2], color='r')
 
 print("complete")
 
