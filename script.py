@@ -5,6 +5,7 @@ from math import pi
 from math import sin as s
 from math import cos as c
 from scipy.spatial.transform import Rotation, Slerp # so i can get angles, i am not doing all that math
+import sys
 
 
 # from libcapstone import LightsaberDetector
@@ -84,14 +85,14 @@ def test_forward_kinematics(kin_params):
 def return_jacobian(kin_params, q):
     '''676767676767'''
     T = transform(kin_params(q))
-    p_end = T[-1, :3, 3]
+    p_end = T[-1, :3, 3] # xyz position of the gripper
 
     J = np.zeros((6, 7))
     for i in range(7):
-        z_axis = T[i, :3, 2]
-        origin = T[i, :3, 3]
-        J[:3, i] = np.cross(z_axis, p_end - origin)
-        J[3:, i] = z_axis
+        z_axis = T[i, :3, 2] # z axis vector column
+        origin = T[i, :3, 3] # xyz position
+        J[:3, i] = np.cross(z_axis, p_end - origin) # linear velocity = z^0_{i-1} x (o_n - o_{i-1})
+        J[3:, i] = z_axis # angular velocity = z^0_{i-1}
     return J
 
 def get_position(q, kin_params):
@@ -103,7 +104,7 @@ def pseudo_inverse(jacobian):
     # return jacobian.T @ np.linalg.inv(jacobian @ jacobian.T)
     return np.linalg.pinv(jacobian)
 
-def move_between_points(diff, rot_diff, kinematic_parameters, steps=5, speed=0.4):
+def move_between_points(diff, rot_diff, kinematic_parameters, steps=5, speed=0.4, absRot = False):
 
     diff = np.asarray(diff, dtype=float)
     initT = transform(kinematic_parameters(robot.joint_values))[-1]
@@ -111,7 +112,11 @@ def move_between_points(diff, rot_diff, kinematic_parameters, steps=5, speed=0.4
     startPos = initT[:3, 3]
     startRot = Rotation.from_matrix(initT[:3, :3])
 
-    rotGoal = startRot * rot_diff
+    if absRot:
+        rotGoal = rot_diff
+    else:
+        rotGoal = startRot * rot_diff
+
     slerp = Slerp([0, 1], Rotation.concatenate([startRot, rotGoal])) #not really sure what this is doing, but it is workingg
 
     for i in range(1, steps+1):
@@ -125,7 +130,7 @@ def move_between_points(diff, rot_diff, kinematic_parameters, steps=5, speed=0.4
         robot.set_joint_targets(q, speed=speed, wait=False) if i<steps else robot.set_joint_targets(q, speed=speed, wait=True)
 
 
-def inv_kin(p_target, r_target, kin_params, q0, iters = 10000, p_tolerance=0.04, r_tolerance=0.01, rot_weight=100):
+def inv_kin(p_target, r_target, kin_params, q0, iters = 10000, p_tolerance=0.02, r_tolerance=0.01, rot_weight=100):
 
     q = np.array(q0, dtype=float)
     r_target = Rotation.from_matrix(r_target) # turning into a Rotation object
@@ -153,27 +158,54 @@ def inv_kin(p_target, r_target, kin_params, q0, iters = 10000, p_tolerance=0.04,
     return q
 
 
+arguments = sys.argv[1:] # got this online -- makes running commands and doing certain tasks easier
 
+if len(arguments) != 1:
+    print("ERROR: provide an argument for a specific task for the arm to do")
+    sys.exit()
 
-measured_zero = [-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473] #arbitrary joints values for an xyz origin
+print("m1 for milestone 1")
+print("m2invkintest")
+
+argument = arguments[0]
+
+measured_zero = [-0.04625704, -0.45930759,  0.09208055, -0.05188621,  0.09883064,  0.40833193, -0.053688  ] #arbitrary joints values for an xyz origin
 robot.set_joint_targets(measured_zero, wait=True) # measured these irl
 
-# move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
-
 robot.show()
-input("press enter to run")
 
 init_pos = get_position(robot.joint_values, kinematic_parameters)
-print(init_pos-init_pos)
 
-move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
-print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
+print(f"initial position = {init_pos}")
 
-move_between_points(np.array([0, 100, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
-print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
+input("press enter to run")
 
-move_between_points(np.array([0, 0, 100]), Rotation.identity(), kinematic_parameters, speed=0.3)
-print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
+
+if argument == "m1":
+    # milestone 1
+    move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
+    print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
+
+    move_between_points(np.array([0, 100, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
+    print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
+
+    move_between_points(np.array([0, 0, 100]), Rotation.identity(), kinematic_parameters, speed=0.3)
+    print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
+elif argument == "m2invkintest":
+    # move_between_points(np.array([-100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
+
+
+    R1 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
+    move_between_points(np.array([500, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.3, absRot=True)
+    print(np.round(get_position(robot.joint_values, kinematic_parameters)))
+
+    R2 = np.array([[0, 0, 1], [0, -1, 0], [1, 0, 0]])
+    move_between_points(np.array([100, 0, 300]), Rotation.from_matrix(R2), kinematic_parameters, speed=0.3, absRot=True)
+    print(np.round(get_position(robot.joint_values, kinematic_parameters)))
+
+    R3 = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
+    move_between_points(np.array([-200, 200, -50]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.3, absRot=True)
+    print(np.round(get_position(robot.joint_values, kinematic_parameters)))
 
 print("complete")
 
