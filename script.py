@@ -207,7 +207,7 @@ elif argument=="m2":
     detector.query(color)
 elif argument=="m2grasp":
     R1 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
-    move_between_points(np.array([300, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.5, absRot=True)
+    move_between_points(np.array([400, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.5, absRot=True)
     robot.grip(1)
     move_between_points(np.array([0, 0, -20])-init_pos, Rotation.identity(), kinematic_parameters, speed=0.2,)
 
