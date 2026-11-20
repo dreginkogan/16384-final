@@ -120,7 +120,7 @@ def move_between_points(diff, rot_diff, kinematic_parameters, steps=5, speed=0.4
 
         # robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=True)
         q = inv_kin(stepEndPos, slerp(i/steps).as_matrix(), kinematic_parameters, robot.joint_values)
-        robot.set_joint_targets(q, wait=True)
+        robot.set_joint_targets(q, speed=speed, wait=False)
 
 
 def inv_kin(p_target, r_target, kin_params, q0, iters = 10000, p_tolerance=0.04, r_tolerance=0.01, rot_weight=100):
@@ -156,7 +156,7 @@ def inv_kin(p_target, r_target, kin_params, q0, iters = 10000, p_tolerance=0.04,
 # measured_zero = [-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473] #arbitrary joints values for an xyz origin
 # robot.set_joint_targets(measured_zero, wait=True) # measured these irl
 
-move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.15)
+move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
 
 robot.show()
 input("press enter to run")
@@ -164,13 +164,13 @@ input("press enter to run")
 init_pos = get_position(robot.joint_values, kinematic_parameters)
 print(init_pos-init_pos)
 
-move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.15)
+move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
 print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
 
-move_between_points(np.array([0, 100, 0]), Rotation.identity(), kinematic_parameters, speed=0.15)
+move_between_points(np.array([0, 100, 0]), Rotation.identity(), kinematic_parameters, speed=0.3)
 print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
 
-move_between_points(np.array([0, 0, 100]), Rotation.identity(), kinematic_parameters, speed=0.15)
+move_between_points(np.array([0, 0, 100]), Rotation.identity(), kinematic_parameters, speed=0.3)
 print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
 
 print("complete")
