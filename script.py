@@ -7,14 +7,8 @@ from math import cos as c
 from scipy.spatial.transform import Rotation, Slerp # so i can get angles, i am not doing all that math
 import sys
 
-
-# from libcapstone import LightsaberDetector
-
-# detector = LightsaberDetector()
-
 # set vis to True when testing on computer, otherwise set IP for real arm
 # with Robot(visualize=True, open_browser=True) as robot:
-#     # robot.register_visualizer(detector)
 #     print("meow meow meow")
 
 robot = Robot(visualize=True, open_browser=True)
@@ -206,6 +200,11 @@ elif argument == "m2invkintest":
     R3 = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
     move_between_points(np.array([-200, 200, -50]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.5, absRot=True)
     print(np.round(get_position(robot.joint_values, kinematic_parameters)))
+elif argument=="m2":
+    from libcapstone import LightsaberDetector
+    detector = LightsaberDetector()
+    robot.register_visualizer(detector)
+    detector.query(color)
 
 print("complete")
 
