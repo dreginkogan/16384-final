@@ -213,7 +213,11 @@ elif argument=="m2grasp":
     print()
     move_between_points(np.array([0, 0, -80]), Rotation.identity(), kinematic_parameters, speed=0.3,)
     robot.grip(0)
-    move_between_points(np.array([0, 0, 80]), Rotation.identity(), kinematic_parameters, speed=0.3,)
+    R2 = np.array([[0, -1, 0], [1, 0, 0], [0, 0, -1]])
+    move_between_points(np.array([0, 0, 200]), Rotation.from_matrix(R2), kinematic_parameters, speed=0.3)
+
+    R3 = np.array([[0, 0, 1], [0, -1, 0], [1, 0, 0]])
+    move_between_points(np.array([0, 0, 200]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.3)
 
 print("complete")
 
