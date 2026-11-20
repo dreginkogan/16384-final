@@ -207,7 +207,7 @@ elif argument=="m2":
 
     R1 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
     move_between_points(np.array([300, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.5, absRot=True)
-
+    
     ends1 = detector.query("red")
     print(ends1)
 
@@ -224,18 +224,33 @@ elif argument=="m2":
     print(ends3)
     
 elif argument=="m2grasp":
+    detector = LightsaberDetector()
+    robot.register_visualizer(detector)
+
     R1 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
     move_between_points(np.array([300, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.5, absRot=True)
     robot.grip(1)
-    input("put lightsaber block thing under")
+    input("put lightsaber block thing under, then press enter")
     print()
-    move_between_points(np.array([0, 0, -80]), Rotation.identity(), kinematic_parameters, speed=0.3,)
+    move_between_points(np.array([0, 0, -80]), Rotation.identity(), kinematic_parameters, speed=0.3)
     robot.grip(0)
-    R2 = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
-    move_between_points(np.array([100, 0, 200]), Rotation.from_matrix(R2), kinematic_parameters, speed=0.3)
+    move_between_points(np.array([0, 0, 80]), Rotation.identity(), kinematic_parameters, speed=0.3)
+
+    ends1 = detector.query("red")
+    print(ends1)
+
+    R2 = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
+    move_between_points(np.array([250, -150, 200]), Rotation.from_matrix(R2), kinematic_parameters, speed=0.3)
+
+    ends2 = detector.query("red")
+    print(ends2)
 
     R3 = np.array([[0, 0, 1], [0, -1, 0], [1, 0, 0]])
-    move_between_points(np.array([250, 0, 0]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.3, absRot=True)
+    move_between_points(np.array([0, 0, -150]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.3, absRot=True)
+
+    ends3 = detector.query("red")
+    print(ends3)
+
 
 print("complete")
 
