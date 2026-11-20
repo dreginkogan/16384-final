@@ -205,6 +205,11 @@ elif argument=="m2":
     detector = LightsaberDetector()
     robot.register_visualizer(detector)
     detector.query(color)
+elif argument=="m2grasp":
+    move_between_points(np.array([100, 0, 0])-init_pos, Rotation.identity(), kinematic_parameters, speed=0.5, absRot=False)
+    input("press enter once it is over the lightsaber")
+    robot.grip(1)
+    move_between_points(np.array([0, 0, -60])-init_pos, Rotation.identity(), kinematic_parameters, speed=0.2, absRot=False)
 
 print("complete")
 
