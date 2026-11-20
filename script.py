@@ -196,15 +196,15 @@ elif argument == "m2invkintest":
 
 
     R1 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
-    move_between_points(np.array([500, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.3, absRot=True)
+    move_between_points(np.array([500, 0, 0])-init_pos, Rotation.from_matrix(R1), kinematic_parameters, speed=0.5, absRot=True)
     print(np.round(get_position(robot.joint_values, kinematic_parameters)))
 
     R2 = np.array([[0, 0, 1], [0, -1, 0], [1, 0, 0]])
-    move_between_points(np.array([100, 0, 300]), Rotation.from_matrix(R2), kinematic_parameters, speed=0.3, absRot=True)
+    move_between_points(np.array([100, 0, 300]), Rotation.from_matrix(R2), kinematic_parameters, speed=0.5, absRot=True)
     print(np.round(get_position(robot.joint_values, kinematic_parameters)))
 
     R3 = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
-    move_between_points(np.array([-200, 200, -50]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.3, absRot=True)
+    move_between_points(np.array([-200, 200, -50]), Rotation.from_matrix(R3), kinematic_parameters, speed=0.5, absRot=True)
     print(np.round(get_position(robot.joint_values, kinematic_parameters)))
 
 print("complete")
