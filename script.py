@@ -4,6 +4,8 @@ np.set_printoptions(suppress=True)
 from math import pi
 from math import sin as s
 from math import cos as c
+from scipy.spatial.transform import Rotation, Slerp # so i can get angles, i am not doing all that math
+
 
 # from libcapstone import LightsaberDetector
 
@@ -20,8 +22,6 @@ joints = robot.joint_values
 vels = robot.joint_velocities
 # print(joints)
 # print()
-
-
 
 
 kinematic_parameters = lambda q:  np.array([[0, 0, 267, q[0]],
@@ -45,26 +45,20 @@ def transform(kin_params):
     return transforms
 
 def denavit_hartenberg(params):
-    '''returns a transformation'''
+    '''returns the transform'''
+    a, alpha, d, theta = params
 
-    # just to make it less messy idk
-    dx = params[0]
-    a = params[1]
-    dz = params[2]
-    t = params[3]
+    x_arr = np.array([[1, 0,        0,         a],
+                      [0, c(alpha), -s(alpha), 0],
+                      [0, s(alpha),  c(alpha), 0],
+                      [0, 0,        0,         1]])
 
-    x_arr = np.array([[1, 0, 0, dx],
-                      [0, c(a), -s(a), 0],
-                      [0, s(a), c(a), 0],
-                      [0, 0, 0, 1]])
-
-    z_arr = np.array([[c(t), -s(t), 0, 0],
-                      [s(t), c(t), 0, 0],
-                      [0, 0, 1, dz],
-                      [0, 0, 0, 1]])
+    z_arr = np.array([[c(theta), -s(theta), 0, 0],
+                      [s(theta),  c(theta), 0, 0],
+                      [0,         0,        1, d],
+                      [0,         0,        0, 1]])
 
     return x_arr @ z_arr
-
 def test_forward_kinematics(kin_params):
     '''goes through the test cases on the assignment'''
     test_cases = np.array([[0, 0, 0, 0, 0, 0, 0],
@@ -88,78 +82,131 @@ def test_forward_kinematics(kin_params):
     print()
 
 def return_jacobian(kin_params, q):
-    '''returns the xyz jacobian at a position 1'''
-    # need to do this for pseudoinverse also
-    T = transform(kin_params(q)) #7, 4, 4 -- transform for each of the 7 joints
-    endeff_pos = T[-1, :3, 3] # the displacement column of the end effector
+    '''6x7 jacobian, modified DH: joint i rotates about z of frame i'''
+    T = transform(kin_params(q))
+    p_end = T[-1, :3, 3]
 
-    J = np.zeros((3, 7))
-    for i in range(7): # for each joint
-        approach_i = T[i, :3, 2] # direction of motion, approach column of the transform
-        origin_i = T[i, :3, 3] # transformation for the origin frame
-        J[:, i] = np.cross(approach_i, endeff_pos - origin_i)
+    J = np.zeros((6, 7))
+    for i in range(7):
+        z_axis = T[i, :3, 2]
+        origin = T[i, :3, 3]
+        J[:3, i] = np.cross(z_axis, p_end - origin)
+        J[3:, i] = z_axis
     return J
 
-def get_position(joint_vals, kin_params):
-    J = return_jacobian(kin_params, joint_vals)
-    loc = J[:3, 3]
-    return loc
+def get_position(q, kin_params):
+    return transform(kin_params(q))[-1, :3, 3]
 
 def pseudo_inverse(jacobian):
     """return left pseudoinverse"""
-    return jacobian.T @ np.linalg.inv(jacobian @ jacobian.T)
+    # return jacobian.T @ np.linalg.inv(jacobian @ jacobian.T)
+    return np.linalg.pinv(jacobian)
 
-def move_between_points(start_pos, end_pos, kinematic_parameters, steps=5, speed=0.2):
-    pointDiff = end_pos - start_pos
-    stepStartPos = start_pos
+def move_between_points(diff, rot_diff, kinematic_parameters, steps=5, speed=0.2):
+    diff = np.asarray(diff, dtype=float)
+    initT = transform(kinematic_parameters(robot.joint_values))[-1]
+    # pointDiff = end_pos - start_pos
+    startPos = initT[:3, 3]
+    startRot = Rotation.from_matrix(initT[:3, :3])
 
-    for i in range(1, steps):
-        stepStartPos = (pointDiff/steps)*i
-        stepEndPos = (pointDiff/steps)*(i+1)
-        diff = stepEndPos - stepStartPos
+    rotGoal = startRot * rot_diff
+    slerp = Slerp([0, 1], Rotation.concatenate([startRot, rotGoal]))
 
-        jacobian = return_jacobian(kinematic_parameters, robot.joint_values)
-        pseudo = pseudo_inverse(jacobian)
-        joint_vels = pseudo@diff
+    for i in range(1, steps+1):
+        stepEndPos = startPos + (diff/steps)*(i)
+        # stepEndRot = startRot + (rot_diff/steps)*(i)
 
-        robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=True)
+        # robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=True)
+        q = inv_kin(stepEndPos, slerp(i/steps).as_matrix(), kinematic_parameters, robot.joint_values)
+        robot.set_joint_targets(q, wait=True)
 
+
+def inv_kin(p_target, r_target, kin_params, q0, iters = 10000, p_tolerance=0.05, r_tolerance=0.01, rot_weight=100):
+
+    q = np.array(q0, dtype=float)
+    r_target = Rotation.from_matrix(r_target) # turning into a Rotation object
+
+    for k in range(iters):
+        endeff_transform = transform(kin_params(q))[-1]
+
+
+        p_error = p_target - endeff_transform[:3, 3]
+        r_error = (r_target * Rotation.from_matrix(endeff_transform[:3, :3]).inv()).as_rotvec() # can't directly find difference by subtraction
+
+        if np.linalg.norm(p_error) < p_tolerance and np.linalg.norm(r_error) < r_tolerance:
+            return q
+
+        J = return_jacobian(kin_params, q)
+        error = np.concatenate([p_error, r_error*rot_weight]) # angles are in radians here, while dimensions are in mm
+        J[3:] *= rot_weight  
+
+        h = J.T @ error # negative gradient
+        Jh = J@h
+        alpha = alpha = (h @ h) / (Jh @ Jh + 1e-12) # got from online 
+
+        q = q+alpha*h # angles update equation from slides
+
+    return q
 
 robot.show()
-
 input("press enter to run")
 
-measured_zero = [-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473]
 
+measured_zero = [-0.140388, 0.214077, 0.117595, 0.434487, -0.074377, 0.253417, 0.012473] #arbitrary joints values for an xyz origin
 robot.set_joint_targets(measured_zero, wait=True) # measured these irl
 
 init_pos = get_position(robot.joint_values, kinematic_parameters)
-print(get_position(robot.joint_values, kinematic_parameters)-init_pos)
+print(init_pos-init_pos)
 
+move_between_points(np.array([100, 0, 0]), Rotation.identity(), kinematic_parameters, speed=0.15)
+print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
 
+move_between_points(np.array([0, 100, 0]), Rotation.identity(), kinematic_parameters, speed=0.15)
+print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
 
-move_between_points(np.array([0, 0, 0]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
-print(get_position(robot.joint_values, kinematic_parameters)-init_pos)
+rot_target = Rotation.from_euler('z', [90], degrees=True)
+move_between_points(np.array([0, 0, 0]), rot_target, kinematic_parameters, speed=0.15)
+print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
 
-move_between_points(np.array([0, 0, 0]), np.array([0, 100, 0]).T, kinematic_parameters, speed=0.15)
-print(get_position(robot.joint_values, kinematic_parameters)-init_pos)
+# move_between_points(np.array([0, 0, 0, 0, 0, 1]), np.array([0, 100, 0, 0, 0, 1]), kinematic_parameters, speed=0.15)
+# print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
 
-move_between_points(np.array([100, 100, 0]), np.array([100, 100, 100]).T, kinematic_parameters, speed=0.15)
-print(get_position(robot.joint_values, kinematic_parameters)-init_pos)
+# move_between_points(np.array([100, 100, 0, 0, 0, 1]), np.array([100, 100, 100, 0, 0, 1]), kinematic_parameters, speed=0.15)
+# print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
 
-print("after all the moving")
-move_between_points(np.array([100, 100, 100]), np.array([100, 0, 0]).T, kinematic_parameters, speed=0.15)
+# print("after all the moving")
+# move_between_points(np.array([100, 100, 100, 0, 0, 1]), np.array([100, 0, 0, 0, 0, 1]), kinematic_parameters, speed=0.15)
 
-robot.free_drive()
-input("press enter after the gripper is 10cm above the lightsaber")
-robot.end_free_drive()
+# robot.free_drive()
+# input("press enter after the gripper is 10cm above the lightsaber")
+# robot.end_free_drive()
 
-robot.grip(1)
+# robot.grip(1)
 
-move_between_points(np.array([0, 0, 0]), np.array([0, 0, -100]).T, kinematic_parameters, speed=0.15)
-robot.grip(0)
-move_between_points(np.array([0, 0, 0]), np.array([0, 0, 200]).T, kinematic_parameters, speed=0.15)
+# move_between_points(np.array([0, 0, 0]), np.array([0, 0, -100]).T, kinematic_parameters, speed=0.15)
+# robot.grip(0)
+# move_between_points(np.array([0, 0, 0]), np.array([0, 0, 200]).T, kinematic_parameters, speed=0.15)
 
 
 
 # robot.stop(wait=True)
+
+
+# q_now = np.array(robot.joint_values)
+# T_now = transform(kinematic_parameters(q_now))[-1]
+
+# p_goal = T_now[:3, 3] + np.array([200, 0, 0])
+# R_goal = Rotation.from_euler('xyz', [0, 0, 0], degrees=True).as_matrix()
+
+# q_sol = inv_kin(p_goal, R_goal, kinematic_parameters, q_now)
+# robot.set_joint_targets(q_sol, 0.15, wait=True)
+
+
+# q_now = np.array(robot.joint_values)
+# T_now = transform(kinematic_parameters(q_now))[-1]
+
+# p_goal = T_now[:3, 3] + np.array([200, 200, 0])
+# R_goal = Rotation.from_euler('xyz', [0, 0, 0], degrees=True).as_matrix()
+
+# q_sol = inv_kin(p_goal, R_goal, kinematic_parameters, q_now)
+# robot.set_joint_targets(q_sol, 0.15, wait=True)
