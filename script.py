@@ -299,7 +299,7 @@ elif argument=="m2plane":
     errors = b - A * fit
     residual = np.linalg.norm(errors)
 
-    print("solution: %f x + %f y + %f = z" % (fit[0], fit[1], fit[2]))
+    # print("solution: %f x + %f y + %f = z" % (fit[0], fit[1], fit[2]))
     print("errors:")
     print(errors)
     print("residual: {}".format(residual))
