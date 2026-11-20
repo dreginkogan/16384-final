@@ -119,8 +119,10 @@ def move_between_points(diff, rot_diff, kinematic_parameters, steps=5, speed=0.4
         # stepEndRot = startRot + (rot_diff/steps)*(i)
 
         # robot.set_joint_targets(robot.joint_values+joint_vels, speed, wait=True)
+
+
         q = inv_kin(stepEndPos, slerp(i/steps).as_matrix(), kinematic_parameters, robot.joint_values)
-        robot.set_joint_targets(q, speed=speed, wait=False)
+        robot.set_joint_targets(q, speed=speed, wait=False) if i<steps else robot.set_joint_targets(q, speed=speed, wait=True)
 
 
 def inv_kin(p_target, r_target, kin_params, q0, iters = 10000, p_tolerance=0.04, r_tolerance=0.01, rot_weight=100):
