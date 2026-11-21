@@ -1,3 +1,5 @@
 .vscode/*
 libcapstone/
 *.pyc
+mathtest.ipynb
+planetest.py

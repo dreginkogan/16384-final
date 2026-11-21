@@ -10,6 +10,7 @@ from libcapstone import LightsaberDetector
 from time import sleep
 import matplotlib.pyplot as plt
 
+
 # set vis to True when testing on computer, otherwise set IP for real arm
 # with Robot(visualize=True, open_browser=True) as robot:
 #     print("meow meow meow")
@@ -266,59 +267,44 @@ elif argument=="m2plane":
         points[i-1] = reading
         sleep(2/100)
 
+    # vstack both base and tip points
+    points = np.vstack(points[:, 0, :], points[:, 1, :])
+
+    # need to remove nan values actually
+
     # find centroid of all the points
+    com = np.sum(points, axis=0)/len(points)
+
+    # move com to origin
+    q = points-com
+
+    # find 3x3 matrix
+    Q = np.dot(q.T, q)
+
+    # find eigenvalues and eigenvectors
+    la, vectors = np.linalg.eig(Q)
+
+    # find eigenvector of smallest eigenvalue
+    plane_v = vectors.T[np.argmin(la)]
+
 
     # how to find direction of least variance for the normal???
     plt.figure()
     ax = plt.subplot(111, projection='3d')
 
-    base_x = points[:, 0, 0][~np.isnan(points[:, 0, 0])]
-    base_y = points[:, 0, 1][~np.isnan(points[:, 0, 1])]
-    base_z = points[:, 0, 2][~np.isnan(points[:, 0, 2])]
+    # base_x = points[:, 0, 0][~np.isnan(points[:, 0, 0])]
+    # base_y = points[:, 0, 1][~np.isnan(points[:, 0, 1])]
+    # base_z = points[:, 0, 2][~np.isnan(points[:, 0, 2])]
 
-    tip_x = points[:, 1, 0][~np.isnan(points[:, 1, 0])]
-    tip_y = points[:, 1, 1][~np.isnan(points[:, 1, 1])]
-    tip_z = points[:, 1, 2][~np.isnan(points[:, 1, 2])]
+    # tip_x = points[:, 1, 0][~np.isnan(points[:, 1, 0])]
+    # tip_y = points[:, 1, 1][~np.isnan(points[:, 1, 1])]
+    # tip_z = points[:, 1, 2][~np.isnan(points[:, 1, 2])]
 
-    xs = np.append(base_x, tip_x)
-    ys = np.append(base_y, tip_y)
-    zs = np.append(base_z, tip_z)
+    # xs = np.append(base_x, tip_x)
+    # ys = np.append(base_y, tip_y)
+    # zs = np.append(base_z, tip_z)
 
-    # plane fitting code from stack exchange
-
-    # do fit
-    # do fit
-    tmp_A = []
-    tmp_b = []
-    for i in range(len(xs)):
-        tmp_A.append([xs[i], ys[i], 1])
-        tmp_b.append(zs[i])
-    b = np.matrix(tmp_b).T
-    A = np.matrix(tmp_A)
-    fit = (A.T * A).I * A.T * b
-    errors = b - A * fit
-    residual = np.linalg.norm(errors)
-
-    # print("solution: %f x + %f y + %f = z" % (fit[0], fit[1], fit[2]))
-    print("errors:")
-    print(errors)
-    print("residual: {}".format(residual))
-
-    # plot plane
-    xlim = ax.get_xlim()
-    ylim = ax.get_ylim()
-    X,Y = np.meshgrid(np.arange(xlim[0], xlim[1]),
-                    np.arange(ylim[0], ylim[1]))
-    Z = np.zeros(X.shape)
-    for r in range(X.shape[0]):
-        for c in range(X.shape[1]):
-            Z[r,c] = fit[0] * X[r,c] + fit[1] * Y[r,c] + fit[2]
-    ax.plot_wireframe(X,Y,Z, color='k')
-
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    ax.set_zlabel('z')
-    plt.show()
+    # need to fit them
 
 
 
