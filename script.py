@@ -287,8 +287,8 @@ elif argument=="m2plane":
     # find eigenvector of smallest eigenvalue
     plane_v = vectors.T[np.argmin(la)]
 
-    print(com)
-    print(plane_v)
+    print(com) # seems to be in meters?
+    print(plane_v) # seems to be in meters too?
 
     # how to find direction of least variance for the normal???
     plt.figure()
@@ -309,55 +309,8 @@ elif argument=="m2plane":
     # need to fit them
     
 
-    robot.draw_plane()
+    detector.draw_plane(np.real(plane_v))
 
     print("yay")
 
 print("complete")
-
-# rot_target = Rotation.from_euler('xz', [90, 90], degrees=True)
-# move_between_points(np.array([0, 0, 0]), rot_target, kinematic_parameters, speed=0.15)
-# print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
-
-# move_between_points(np.array([0, 0, 0, 0, 0, 1]), np.array([0, 100, 0, 0, 0, 1]), kinematic_parameters, speed=0.15)
-# print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
-
-# move_between_points(np.array([100, 100, 0, 0, 0, 1]), np.array([100, 100, 100, 0, 0, 1]), kinematic_parameters, speed=0.15)
-# print(np.round(get_position(robot.joint_values, kinematic_parameters)-init_pos))
-
-# print("after all the moving")
-# move_between_points(np.array([100, 100, 100, 0, 0, 1]), np.array([100, 0, 0, 0, 0, 1]), kinematic_parameters, speed=0.15)
-
-# robot.free_drive()
-# input("press enter after the gripper is 10cm above the lightsaber")
-# robot.end_free_drive()
-
-# robot.grip(1)
-
-# move_between_points(np.array([0, 0, 0]), np.array([0, 0, -100]).T, kinematic_parameters, speed=0.15)
-# robot.grip(0)
-# move_between_points(np.array([0, 0, 0]), np.array([0, 0, 200]).T, kinematic_parameters, speed=0.15)
-
-
-
-# robot.stop(wait=True)
-
-
-# q_now = np.array(robot.joint_values)
-# T_now = transform(kinematic_parameters(q_now))[-1]
-
-# p_goal = T_now[:3, 3] + np.array([200, 0, 0])
-# R_goal = Rotation.from_euler('xyz', [0, 0, 0], degrees=True).as_matrix()
-
-# q_sol = inv_kin(p_goal, R_goal, kinematic_parameters, q_now)
-# robot.set_joint_targets(q_sol, 0.15, wait=True)
-
-
-# q_now = np.array(robot.joint_values)
-# T_now = transform(kinematic_parameters(q_now))[-1]
-
-# p_goal = T_now[:3, 3] + np.array([200, 200, 0])
-# R_goal = Rotation.from_euler('xyz', [0, 0, 0], degrees=True).as_matrix()
-
-# q_sol = inv_kin(p_goal, R_goal, kinematic_parameters, q_now)
-# robot.set_joint_targets(q_sol, 0.15, wait=True)
