@@ -271,6 +271,7 @@ elif argument=="m2plane":
     points = np.vstack((points[:, 0, :], points[:, 1, :]))
 
     # need to remove nan values actually
+    points = points[~np.isnan(points).any(axis=1)]
 
     # find centroid of all the points
     com = np.sum(points, axis=0)/len(points)
