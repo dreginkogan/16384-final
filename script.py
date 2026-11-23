@@ -268,7 +268,7 @@ elif argument=="m2plane":
         sleep(2/100)
 
     # vstack both base and tip points
-    points = np.vstack(points[:, 0, :], points[:, 1, :])
+    points = np.vstack((points[:, 0, :], points[:, 1, :]))
 
     # need to remove nan values actually
 
