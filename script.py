@@ -291,30 +291,14 @@ elif argument=="m2plane":
     print(plane_v) # seems to be in meters too?
 
     # how to find direction of least variance for the normal???
-    plt.figure()
-    ax = plt.subplot(111, projection='3d')
-
-    # base_x = points[:, 0, 0][~np.isnan(points[:, 0, 0])]
-    # base_y = points[:, 0, 1][~np.isnan(points[:, 0, 1])]
-    # base_z = points[:, 0, 2][~np.isnan(points[:, 0, 2])]
-
-    # tip_x = points[:, 1, 0][~np.isnan(points[:, 1, 0])]
-    # tip_y = points[:, 1, 1][~np.isnan(points[:, 1, 1])]
-    # tip_z = points[:, 1, 2][~np.isnan(points[:, 1, 2])]
-
-    # xs = np.append(base_x, tip_x)
-    # ys = np.append(base_y, tip_y)
-    # zs = np.append(base_z, tip_z)
-
-    # need to fit them
+    # plt.figure()
+    # ax = plt.subplot(111, projection='3d')
     
     d = np.dot(np.real(plane_v), com)
     plane = np.append(np.real(plane_v), -d)
-    print(plane)
-    detector.draw_plane(plane)
-    robot.register_visualizer(detector)
-    
+    # print(plane)
+    detector.draw_plane(plane, center=com)
 
-    print("yay")
+    
 
 print("complete")
