@@ -287,6 +287,8 @@ elif argument=="m2plane":
     # find eigenvector of smallest eigenvalue
     plane_v = vectors.T[np.argmin(la)]
 
+    print(com)
+    print(plane_v)
 
     # how to find direction of least variance for the normal???
     plt.figure()
@@ -305,8 +307,9 @@ elif argument=="m2plane":
     # zs = np.append(base_z, tip_z)
 
     # need to fit them
+    
 
-
+    robot.draw_plane()
 
     print("yay")
 
