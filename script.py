@@ -312,6 +312,8 @@ elif argument=="m2plane":
     plane = np.append(np.real(plane_v), -d)
     print(plane)
     detector.draw_plane(plane)
+    robot.register_visualizer(detector)
+    
 
     print("yay")
 
