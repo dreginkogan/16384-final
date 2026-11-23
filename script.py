@@ -308,8 +308,9 @@ elif argument=="m2plane":
 
     # need to fit them
     
-
-    detector.draw_plane(np.real(plane_v))
+    plane = np.dot(np.real(plane_v), com)
+    print(plane)
+    detector.draw_plane(plane)
 
     print("yay")
 
